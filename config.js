@@ -1,58 +1,18 @@
-import { initializeApp } from 'firebase-admin/app';
-import admin from 'firebase-admin'
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-import { getDatabase, ref,set,remove } from "firebase/database";
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDdsm2Pdu7ao_y-iaY6Caws8FeZLfXfCyM",
+  authDomain: "sfhacks2025dev.firebaseapp.com",
+  databaseURL: "https://sfhacks2025dev-default-rtdb.firebaseio.com",
+  projectId: "sfhacks2025dev",
+  storageBucket: "sfhacks2025dev.firebasestorage.app",
+  messagingSenderId: "382680714846",
+  appId: "1:382680714846:web:9a143298eaac7575d6eecf"
+};
 
-import { readFileSync } from 'fs';
-import dotenv from 'dotenv';
-
-dotenv.config()
-const key = process.env.ADMIN_INFO
-const serviceAccount = JSON.parse(Buffer.from(key,'base64').toString('utf-8'))
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://sfhacks2025dev-default-rtdb.firebaseio.com"
-});
-const database = admin.database();
-
-
-//test writing/reading from database
-const write = (s, id)=>{
-    set(ref(database,'blah/' + id), {
-        word: s
-    });
-    console.log("successfully written")
-    return
-
-
-}
-
-const clearDb = ()=>{ // if you run this function it will fucking delete everything
-  const responsesRef = ref(database, 'responses');
-  const teamsRef = ref(database, 'teams')
-  remove(responsesRef)
-  .then(() => {
-    console.log('Responses node deleted successfully.');
-  })
-  .catch((error) => {
-    console.error('Error deleting responses node:', error);
-  });
-  remove(teamsRef)
-  .then(() => {
-    console.log('Responses node deleted successfully.');
-  })
-  .catch((error) => {
-    console.error('Error deleting responses node:', error);
-  });
-  
-}
-
-write("hello", 123)
-
-
-
-
-
-
-export {database}
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
