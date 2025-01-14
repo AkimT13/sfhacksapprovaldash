@@ -26,7 +26,7 @@ export default function HomePage() {
             ) : (
                 <div className="flex cursor-pointer justify-center items-center bg-[#ffc2e2] w-auto h-auto p-3 rounded-xl">
 
-                  <div classname = 'w-auto bg-slate-700 h-auto rounded-xl self-center'>
+                  <div className = 'w-auto  h-auto rounded-xl self-center'>
                     <p className="text-black"> <Link href="/auth">Sign In</Link></p>
                   </div>
                 
