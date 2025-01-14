@@ -1,13 +1,13 @@
-// Import the functions you need from the SDKs you need
+// Import Firebase SDKs
 import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getAuth } from "firebase/auth";
+import { getDatabase } from "firebase/database"; // Added Firebase Realtime Database
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDdsm2Pdu7ao_y-iaY6Caws8FeZLfXfCyM",
   authDomain: "sfhacks2025dev.firebaseapp.com",
-  databaseURL: "https://sfhacks2025dev-default-rtdb.firebaseio.com",
+  databaseURL: "https://sfhacks2025dev-default-rtdb.firebaseio.com", // Ensure correct database URL
   projectId: "sfhacks2025dev",
   storageBucket: "sfhacks2025dev.firebasestorage.app",
   messagingSenderId: "382680714846",
@@ -16,3 +16,10 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+// Initialize Firebase services
+const auth = getAuth(app);
+const db = getDatabase(app); // Added Realtime Database
+
+// Export Firebase services
+export { auth, db };
