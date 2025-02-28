@@ -8,7 +8,7 @@ export default function UserModal({ user, onClose }) {
   }
 
   return (
-    <Modal onClose={onClose}>
+    <Modal onCloseCallBack={onClose}>
       <h2 className="text-2xl font-bold mb-4">
         {user.data.fields.find((f) => f.key === "question_1XXMD4")?.value ||
           "Unknown"}{" "}
@@ -50,15 +50,6 @@ export default function UserModal({ user, onClose }) {
         {user.data.fields.find((f) => f.key === "question_5bbL8v")?.value ||
           "N/A"}
       </p>
-
-      <div className="flex justify-end mt-4">
-        <button
-          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 mr-2"
-          onClick={onClose}
-        >
-          Close
-        </button>
-      </div>
     </Modal>
   );
 }
