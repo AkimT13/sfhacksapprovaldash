@@ -48,6 +48,9 @@ export default function ScanQRCodeTabContent() {
       {scannedUser && (
         <UserModal user={scannedUser} onClose={() => setSelectedUser(null)} />
       )} */}
+      {selectedUser && (
+        <UserModal user={selectedUser} onClose={() => setSelectedUser(null)} />
+      )}
     </div>
   );
 }

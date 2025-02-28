@@ -85,7 +85,6 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Tab Content */}
       <div className="tab-content">
         {tabs.map(
           (tab) =>
