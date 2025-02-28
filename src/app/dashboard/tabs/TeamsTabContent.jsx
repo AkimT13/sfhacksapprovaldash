@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../../../config";
+import { db } from "../../../../config";
 import { ref, get, update } from "firebase/database";
-import UserModal from "../components/UserModal";
+import UserModal from "../../components/UserModal";
 
-export default function TeamsPage() {
+export default function TeamsTabContent() {
     const [teams, setTeams] = useState({});
     const [teamMembers, setTeamMembers] = useState({});
     const [approvedUsers, setApprovedUsers] = useState({});
@@ -130,6 +130,7 @@ export default function TeamsPage() {
                     ))
                 )}
             </div>
+
             {selectedUser && <UserModal user={selectedUser} onClose={() => setSelectedUser(null)} />}
         </div>
     );
