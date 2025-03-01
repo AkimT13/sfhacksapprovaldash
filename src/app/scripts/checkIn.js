@@ -1,5 +1,6 @@
-import { db } from "../../../../config";
-import { ref, get } from "firebase/database";
+import { auth } from "../../../config";
+import { ref, get, update, userRef } from "firebase/database";
+import { db } from "../../../config";
 
 const fetchResponses = async () => {
   try {
@@ -20,10 +21,10 @@ const fetchResponses = async () => {
   }
 };
 
-const fetchApprovedApplication = async (id) => {
+export const fetchApprovedApplication = async (id) => {
   try {
     const appRef = ref(db, `approved/${id}`);
-    const appSnapshot = await get(userRef);
+    const appSnapshot = await get(appRef);
     if (appSnapshot.exists()) {
       const appData = appSnapshot.val();
       return appData;
@@ -38,7 +39,12 @@ const fetchApprovedApplication = async (id) => {
   }
 };
 
-const checkInApprovedApplication = async (id) => {
+/**
+ *
+ * @param {string} id
+ * @returns {Promise<number>} 0 if successful, 1 if user has already been checked in, 2 if error.
+ */
+export const checkInApprovedApplication = async (id) => {
   try {
     const appData = await fetchApprovedApplication(id);
     if (appData === -1 || appData === 2) {
@@ -46,9 +52,14 @@ const checkInApprovedApplication = async (id) => {
     }
 
     const updates = {};
+
+    if (appData.checkedIn) {
+      console.error("User has already been checked in.");
+      return 1;
+    }
     updates[`/approved/${id}/checkedIn`] = true;
     await update(ref(db), updates);
-    return 1;
+    return 0;
   } catch (error) {
     console.error("Error checking in user:", error);
     return 2;

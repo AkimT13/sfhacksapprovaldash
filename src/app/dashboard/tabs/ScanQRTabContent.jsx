@@ -1,17 +1,20 @@
 import Modal from "@/app/components/Modal";
+import {
+  checkInApprovedApplication,
+  fetchApprovedApplication,
+} from "@/app/scripts/checkIn";
+import { set } from "firebase/database";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { useEffect, useState } from "react";
 
 export default function ScanQRCodeTabContent() {
   const [scannedCodes, setScannedCodes] = useState([]);
-
-  function activateLasers() {
-    var decodedText = "asdf";
-    var decodedResult = "asdfasdfasdf";
-    console.log(scannedCodes);
-
-    setScannedCodes(scannedCodes.concat([{ decodedText, decodedResult }]));
-  }
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [scannedApp, setScannedApp] = useState(null);
+  const [buttonMessage, setButtonMessage] = useState("Check-In");
+  const [isCheckInButtonDisabled, setCheckInButtonDisabled] = useState(false);
+  const [isLoadingAppData, setLoadingAppData] = useState(false);
+  const [errorType, setErrorType] = useState(null);
 
   useEffect(() => {
     let html5QrcodeScanner = new Html5QrcodeScanner("reader", {
@@ -20,12 +23,40 @@ export default function ScanQRCodeTabContent() {
     });
 
     html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+
     async function onScanSuccess(decodedText, decodedResult) {
       html5QrcodeScanner.pause();
       console.log(`Code matched = ${decodedText}`, decodedResult);
       setScannedCodes(scannedCodes.concat([{ decodedText, decodedResult }]));
 
-      // TODO check if the code is a valid user id
+      const response = await fetchApprovedApplication(decodedText);
+      if (response === 2) {
+        setButtonMessage("There was an getting application details.");
+        setCheckInButtonDisabled(true);
+        setErrorType(response);
+        setModalVisible(true);
+        return;
+      } else if (response === -1) {
+        setButtonMessage("Application not found.");
+        setCheckInButtonDisabled(true);
+        setErrorType(response);
+        setModalVisible(true);
+        return;
+      }
+
+      setScannedApp(response);
+      setErrorType(null);
+
+      if (response.checkedIn) {
+        setButtonMessage("Already Checked-In");
+        setCheckInButtonDisabled(true);
+        return;
+      }
+
+      setButtonMessage("Check-In");
+      setCheckInButtonDisabled(false);
+
+      setModalVisible(true);
     }
 
     function onScanFailure(error) {
@@ -37,20 +68,48 @@ export default function ScanQRCodeTabContent() {
 
   return (
     <div className="flex flex-col items-center h-full-s">
-      <div id="reader" className="w-96"></div>
+      <div id="reader" className="w-96 scale-x-[-1]"></div>
 
-      <Modal>
-        <div className="flex justify-center"></div>
-        <h2 className="text-2xl font-bold mb-4">Odera Nwosu</h2>
-        <p>
-          <strong>Judge</strong>
-        </p>
-        <div className="w-full mt-4 space-y-2">
-          <button className="flex w-full justify-center bg-green-500 text-white py-4 rounded-md hover:bg-green-600 mr-2">
-            Check-In
-          </button>
-        </div>
-      </Modal>
+      {isModalVisible && (
+        <Modal onCloseCallBack={() => setModalVisible(false)}>
+          {errorType == -1 ? (
+            <div className="flex justify-center">Application not found</div>
+          ) : (
+            <div>
+              <h2 className="text-2xl font-bold mb-4">
+                {scannedApp.data.fields.find((f) => f.key === "question_1XXMD4")
+                  ?.value || "Unknown"}{" "}
+                {scannedApp.data.fields.find((f) => f.key === "question_MXXLvE")
+                  ?.value || ""}
+              </h2>
+              <p>
+                <strong>Role:</strong>{" "}
+                {scannedApp.data.fields
+                  .find((f) => f.key === "question_prrGRy")
+                  ?.options?.find(
+                    (option) =>
+                      option.id ===
+                      scannedApp.data.fields.find(
+                        (f) => f.key === "question_prrGRy"
+                      )?.value?.[0]
+                  )?.text || "N/A"}
+              </p>
+              <div className="w-full mt-4 space-y-2">
+                <button
+                  disabled={isCheckInButtonDisabled}
+                  className={
+                    !isCheckInButtonDisabled
+                      ? "flex w-full justify-center bg-green-500 text-white py-4 rounded-md hover:bg-green-600 mr-2"
+                      : "flex w-full justify-center bg-gray-100 text-gray-400 py-4 rounded-md  mr-2"
+                  }
+                >
+                  {buttonMessage}
+                </button>
+              </div>
+            </div>
+          )}
+        </Modal>
+      )}
     </div>
   );
 }
