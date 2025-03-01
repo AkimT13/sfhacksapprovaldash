@@ -57,6 +57,7 @@ export const checkInApprovedApplication = async (id) => {
       console.error("User has already been checked in.");
       return 1;
     }
+
     updates[`/approved/${id}/checkedIn`] = true;
     await update(ref(db), updates);
     return 0;

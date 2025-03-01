@@ -5,7 +5,7 @@ import {
 } from "@/app/scripts/checkIn";
 import { set } from "firebase/database";
 import { Html5QrcodeScanner } from "html5-qrcode";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState, useRef } from "react";
 
 export default function ScanQRCodeTabContent() {
   const [scannedCodes, setScannedCodes] = useState([]);
@@ -16,22 +16,46 @@ export default function ScanQRCodeTabContent() {
   const [isLoadingAppData, setLoadingAppData] = useState(false);
   const [errorType, setErrorType] = useState(null);
 
-  useEffect(() => {
-    let html5QrcodeScanner = new Html5QrcodeScanner("reader", {
-      fps: 10,
-      qrbox: { width: 250, height: 250 },
-    });
+  const qrScannerRef = useRef(null);
 
-    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+  useEffect(() => {
+    if (!qrScannerRef.current) {
+      qrScannerRef.current = new Html5QrcodeScanner("reader", {
+        fps: 5,
+        qrbox: { width: 250, height: 250 },
+      });
+    }
+
+    return () => {
+      if (qrScannerRef.current) {
+        console.log("Stopping scanner and releasing camera...");
+        qrScannerRef.current.clear();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!qrScannerRef.current) return;
+
+    if (isModalVisible && !qrScannerRef.current.isPaused) {
+      qrScannerRef.current.pause();
+      qrScannerRef.current.isPaused = true;
+    } else if (!isModalVisible && qrScannerRef.current.isPaused) {
+      qrScannerRef.current.resume();
+      qrScannerRef.current.isPaused = false;
+    }
+  }, [isModalVisible]);
+
+  useEffect(() => {
+    qrScannerRef.current.render(onScanSuccess, onScanFailure);
 
     async function onScanSuccess(decodedText, decodedResult) {
-      html5QrcodeScanner.pause();
       console.log(`Code matched = ${decodedText}`, decodedResult);
       setScannedCodes(scannedCodes.concat([{ decodedText, decodedResult }]));
 
       const response = await fetchApprovedApplication(decodedText);
       if (response === 2) {
-        setButtonMessage("There was an getting application details.");
+        setButtonMessage("There was an error getting application details.");
         setCheckInButtonDisabled(true);
         setErrorType(response);
         setModalVisible(true);
@@ -50,6 +74,7 @@ export default function ScanQRCodeTabContent() {
       if (response.checkedIn) {
         setButtonMessage("Already Checked-In");
         setCheckInButtonDisabled(true);
+        setModalVisible(true);
         return;
       }
 
@@ -60,11 +85,36 @@ export default function ScanQRCodeTabContent() {
     }
 
     function onScanFailure(error) {
-      // handle scan failure, usually better to ignore and keep scanning.
-      // for example:
       console.warn(`Code scan error = ${error}`);
     }
-  });
+  }, []);
+
+  const checkInApp = async () => {
+    setCheckInButtonDisabled(true);
+    setButtonMessage("Checking in...");
+
+    const response = await checkInApprovedApplication(scannedApp.id);
+    if (response === 2) {
+      setButtonMessage("Error checking in.");
+      setCheckInButtonDisabled(true);
+      return;
+    }
+
+    if (response === 1) {
+      setButtonMessage("Already Checked-In");
+      setCheckInButtonDisabled(true);
+      return;
+    }
+
+    if (response === -1) {
+      setButtonMessage("No application found.");
+      setCheckInButtonDisabled(true);
+      return;
+    }
+
+    setButtonMessage("Checked-In");
+    setCheckInButtonDisabled(true);
+  };
 
   return (
     <div className="flex flex-col items-center h-full-s">
@@ -97,6 +147,9 @@ export default function ScanQRCodeTabContent() {
               <div className="w-full mt-4 space-y-2">
                 <button
                   disabled={isCheckInButtonDisabled}
+                  onClick={async () => {
+                    checkInApp();
+                  }}
                   className={
                     !isCheckInButtonDisabled
                       ? "flex w-full justify-center bg-green-500 text-white py-4 rounded-md hover:bg-green-600 mr-2"

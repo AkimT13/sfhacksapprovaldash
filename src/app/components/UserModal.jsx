@@ -9,6 +9,11 @@ export default function UserModal({ user, onClose }) {
 
   return (
     <Modal onCloseCallBack={onClose}>
+      <p>
+        <strong>id:</strong>{" "}
+        {user.data.fields.find((f) => f.key === "question_JqqLXz")?.value ||
+          "N/A"}
+      </p>
       <h2 className="text-2xl font-bold mb-4">
         {user.data.fields.find((f) => f.key === "question_1XXMD4")?.value ||
           "Unknown"}{" "}
@@ -45,6 +50,7 @@ export default function UserModal({ user, onClose }) {
                 ?.value?.[0]
           )?.text || "N/A"}
       </p>
+
       <p>
         <strong>Why Attend:</strong>{" "}
         {user.data.fields.find((f) => f.key === "question_5bbL8v")?.value ||

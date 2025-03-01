@@ -49,12 +49,12 @@ function DashboardContent() {
       label: "All Team Applications",
       component: <TeamTabContent />,
     },
-    { key: "scan_qr", label: "Scan QR Code", component: <ScanQRTabContent /> },
     {
       key: "approved_apps",
       label: "Approved Applications",
       component: <ApprovedTabContent />,
     },
+    { key: "scan_qr", label: "Scan QR Code", component: <ScanQRTabContent /> },
   ];
 
   const handleTabClick = (tabKey) => {
