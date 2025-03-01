@@ -1,7 +1,7 @@
 // DashboardPage.js - Main dashboard component
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { db } from "../../../config";
 import { ref, get } from "firebase/database";
 import Approved from "../components/Approved";
@@ -14,19 +14,16 @@ const ScanQRTabContent = dynamic(() => import("./tabs/ScanQRTabContent"), {
 const TeamTabContent = dynamic(() => import("./tabs/TeamsTabContent"), {
   ssr: false,
 });
-
 const IndividualAppsTabContent = dynamic(
   () => import("./tabs/IndividualTabContent"),
-  {
-    ssr: false,
-  }
+  { ssr: false }
 );
 
-export default function DashboardPage() {
+function DashboardContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
   const router = useRouter();
+
   const [activeTab, setActiveTab] = useState(
     searchParams.get("tab") || "team_tab"
   );
@@ -36,7 +33,6 @@ export default function DashboardPage() {
     if (tab) {
       setActiveTab(tab);
     } else {
-      // Default to 'team_tab' if no tab is set
       setActiveTab("team_tab");
     }
   }, [searchParams]);
@@ -52,16 +48,10 @@ export default function DashboardPage() {
       label: "All Team Applications",
       component: <TeamTabContent />,
     },
-
-    {
-      key: "scan_qr",
-      label: "Scan QR Code",
-      component: <ScanQRTabContent />,
-    },
+    { key: "scan_qr", label: "Scan QR Code", component: <ScanQRTabContent /> },
   ];
 
   const handleTabClick = (tabKey) => {
-    // Update the query parameter when a tab is clicked
     setActiveTab(tabKey);
     router.push(`/dashboard?tab=${tabKey}`, undefined, { shallow: true });
   };
@@ -70,7 +60,6 @@ export default function DashboardPage() {
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold text-center mb-6">Dashboard</h1>
 
-      {/* Tab Navigation */}
       <div className="flex justify-center space-x-4 mb-6">
         {tabs.map((tab) => (
           <button
@@ -96,5 +85,13 @@ export default function DashboardPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div>Loading Dashboard...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
