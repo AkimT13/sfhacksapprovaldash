@@ -4,9 +4,10 @@
 import { useEffect, useState, Suspense } from "react";
 import { db } from "../../../config";
 import { ref, get } from "firebase/database";
-import Approved from "../components/Approved";
+import Approved from "./tabs/ApprovedTabContent";
 import dynamic from "next/dynamic";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import ApprovedTabContent from "./tabs/ApprovedTabContent";
 
 const ScanQRTabContent = dynamic(() => import("./tabs/ScanQRTabContent"), {
   ssr: false,
@@ -49,6 +50,11 @@ function DashboardContent() {
       component: <TeamTabContent />,
     },
     { key: "scan_qr", label: "Scan QR Code", component: <ScanQRTabContent /> },
+    {
+      key: "approved_apps",
+      label: "Approved Applications",
+      component: <ApprovedTabContent />,
+    },
   ];
 
   const handleTabClick = (tabKey) => {
