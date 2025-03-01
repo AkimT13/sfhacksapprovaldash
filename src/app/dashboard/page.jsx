@@ -8,6 +8,8 @@ import Approved from "./tabs/ApprovedTabContent";
 import dynamic from "next/dynamic";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import ApprovedTabContent from "./tabs/ApprovedTabContent";
+import TabNavigation from "../components/TabNavigation";
+import TabView from "../components/TabView";
 
 const ScanQRTabContent = dynamic(() => import("./tabs/ScanQRTabContent"), {
   ssr: false,
@@ -65,31 +67,13 @@ function DashboardContent() {
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold text-center mb-6">Dashboard</h1>
+      <TabNavigation
+        tabs={tabs}
+        activeTab={activeTab}
+        handleTabClick={handleTabClick}
+      />
 
-      <div className="flex justify-center space-x-4 mb-6">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            className={`px-4 py-2 rounded-lg ${
-              activeTab === tab.key ? "bg-blue-500 text-white" : "bg-gray-300"
-            }`}
-            onClick={() => handleTabClick(tab.key)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="tab-content">
-        {tabs.map(
-          (tab) =>
-            activeTab === tab.key && (
-              <div key={tab.key} className="tab-panel">
-                {tab.component}
-              </div>
-            )
-        )}
-      </div>
+      <TabView tabs={tabs} activeTab={activeTab} />
     </div>
   );
 }

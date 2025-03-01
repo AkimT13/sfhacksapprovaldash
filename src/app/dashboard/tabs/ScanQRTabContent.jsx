@@ -2,7 +2,7 @@ import Modal from "@/app/components/Modal";
 import {
   checkInApprovedApplication,
   fetchApprovedApplication,
-} from "@/app/scripts/checkIn";
+} from "@/app/utils/checkIn";
 import { set } from "firebase/database";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { use, useEffect, useState, useRef } from "react";
