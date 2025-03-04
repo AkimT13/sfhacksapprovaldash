@@ -118,7 +118,7 @@ export default function ScanQRCodeTabContent() {
 
   return (
     <div className="flex flex-col items-center h-full-s">
-      <div id="reader" className="w-96 scale-x-[-1]"></div>
+      <div id="reader" className="w-96"></div>
 
       {isModalVisible && (
         <Modal onCloseCallBack={() => setModalVisible(false)}>
