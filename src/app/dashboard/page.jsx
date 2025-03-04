@@ -8,8 +8,8 @@ import Approved from "./tabs/ApprovedTabContent";
 import dynamic from "next/dynamic";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import ApprovedTabContent from "./tabs/ApprovedTabContent";
-import TabNavigation from "../components/TabNavigation";
-import TabView from "../components/TabView";
+import TabNavigation from "../components/tabs/TabNavigation";
+import TabView from "../components/tabs/TabView";
 
 const ScanQRTabContent = dynamic(() => import("./tabs/ScanQRTabContent"), {
   ssr: false,

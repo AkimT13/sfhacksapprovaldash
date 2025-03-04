@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../../../../config";
 import { ref, get } from "firebase/database";
-import UserModal from "../../components/UserModal";
+import UserModal from "../../components/modals/UserModal";
 
 export default function ApprovedTabContent() {
   const [approvedUsers, setApprovedUsers] = useState({});

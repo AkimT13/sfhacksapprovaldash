@@ -1,4 +1,4 @@
-import Modal from "@/app/components/Modal";
+import Modal from "@/app/components/modals/Modal";
 import {
   checkInApprovedApplication,
   fetchApprovedApplication,

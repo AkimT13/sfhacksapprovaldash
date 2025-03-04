@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { db } from "../../../../config";
 import { ref, get, update } from "firebase/database";
-import UserModal from "../../components/UserModal";
+import UserModal from "../../components/modals/UserModal";
+import TeamCard from "@/app/components/cards/TeamCard";
 
 export default function TeamsTabContent() {
   const [teams, setTeams] = useState({});
@@ -59,43 +60,6 @@ export default function TeamsTabContent() {
     fetchTeams();
   }, []);
 
-  const handleApprove = async (teamID) => {
-    try {
-      const updates = {};
-      const newApprovedUsers = { ...approvedUsers }; // Clone current approved users
-
-      teamMembers[teamID].forEach((member) => {
-        updates[`/approved/${member.id}`] = member;
-        updates[`/responses/${member.id}/accepted`] = true;
-        newApprovedUsers[member.id] = member; // Update local state
-      });
-
-      setApprovedUsers(newApprovedUsers); // Update UI immediately
-      await update(ref(db), updates); // Update Firebase
-    } catch (error) {
-      console.error("Error approving team:", error);
-    }
-  };
-
-  const handleUnapprove = async (teamID) => {
-    try {
-      const updates = {};
-      const newApprovedUsers = { ...approvedUsers }; // Clone current approved users
-
-      teamMembers[teamID].forEach((member) => {
-        updates[`/approved/${member.id}`] = null;
-        updates[`/responses/${member.id}/accepted`] = false;
-        updates[`/responses/${member.id}/checkedIn`] = false;
-        delete newApprovedUsers[member.id]; // Remove from local state
-      });
-
-      setApprovedUsers(newApprovedUsers); // Update UI immediately
-      await update(ref(db), updates); // Update Firebase
-    } catch (error) {
-      console.error("Error unapproving team:", error);
-    }
-  };
-
   if (loading)
     return <p className="text-center text-gray-500">Loading teams...</p>;
 
@@ -106,51 +70,13 @@ export default function TeamsTabContent() {
         {Object.entries(teamMembers).length === 0 ? (
           <p className="text-center text-gray-500">No teams found.</p>
         ) : (
-          Object.entries(teamMembers).map(([teamID, members]) => (
-            <div key={teamID} className="bg-white shadow-lg p-4 rounded-lg">
-              <h2 className="text-md font-semibold mb-3">Team {teamID}</h2>
-              <button
-                className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md"
-                onClick={() => handleApprove(teamID)}
-              >
-                Approve Team
-              </button>
-              <button
-                className="mt-2 px-3 py-1 bg-red-500 text-white rounded-md ml-2"
-                onClick={() => handleUnapprove(teamID)}
-              >
-                Unapprove Team
-              </button>
-              {members.map((user) => (
-                <div
-                  key={user.id}
-                  className={`border p-3 rounded-md mb-2 transition-colors duration-300 ${
-                    approvedUsers[user.id] ? "bg-green-200" : "bg-white"
-                  }`}
-                >
-                  <p>
-                    <strong>Name:</strong>{" "}
-                    {user.data?.fields?.find((f) => f.key === "question_1XXMD4")
-                      ?.value || "Unknown"}{" "}
-                    {user.data?.fields?.find((f) => f.key === "question_MXXLvE")
-                      ?.value || ""}
-                  </p>
-                  <button
-                    className="mt-2 px-3 py-1 bg-blue-500 text-white rounded-md"
-                    onClick={() => setSelectedUser(user)}
-                  >
-                    View Details
-                  </button>
-                </div>
-              ))}
+          Object.entries(teamMembers).map(([teamID, applications]) => (
+            <div key={teamID}>
+              <TeamCard teamID={teamID} initApplications={applications} />
             </div>
           ))
         )}
       </div>
-
-      {selectedUser && (
-        <UserModal user={selectedUser} onClose={() => setSelectedUser(null)} />
-      )}
     </div>
   );
 }

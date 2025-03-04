@@ -13,7 +13,7 @@ export default function Modal({ children, onCloseCallBack = () => {} }) {
 
   if (!isVisible) return null;
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <div className="flex justify-end">
           <button
