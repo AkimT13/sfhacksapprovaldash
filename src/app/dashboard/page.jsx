@@ -43,7 +43,7 @@ function DashboardContent() {
   const tabs = [
     {
       key: "individual_apps",
-      label: "All Applications",
+      label: "Individual Applicants",
       component: <IndividualAppsTabContent />,
     },
     {
