@@ -53,7 +53,7 @@ export default function TeamCard({ teamID, initApplications }) {
     setApplications((prevApplications) =>
       prevApplications.map((app) => (app.id === id ? newApp : app))
     );
-  });
+  }, []);
 
   return (
     <div className="bg-white shadow-lg p-4 rounded-lg">
