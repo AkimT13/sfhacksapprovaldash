@@ -107,8 +107,8 @@ export default function IndividualAppsTabContent() {
                 {user.data.fields.find((f) => f.key === "question_MXXLvE")?.value}
               </p>
               <p>
-                <strong>Email:</strong>{" "}
-                {user.data.fields.find((f) => f.key === "question_gaaLYM")?.value}
+                <strong>Email (school):</strong>{" "}
+                {user.data.fields.find((f) => f.key === "question_yMMxj6")?.value}
               </p>
               <button
                 className="mt-2 px-3 py-1 bg-blue-500 text-white rounded-md"

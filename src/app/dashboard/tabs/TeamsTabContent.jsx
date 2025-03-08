@@ -144,6 +144,13 @@ export default function TeamsTabContent() {
                     {user.data?.fields?.find((f) => f.key === "question_MXXLvE")
                       ?.value || ""}
                   </p>
+                  <p>
+                    <strong>Email (school):</strong>{" "}
+                    {user.data?.fields?.find((f) => f.key === "question_yMMxj6")
+                      ?.value || "Unknown"}{" "}
+                   
+                  </p>
+
                   <button
                     className="mt-2 px-3 py-1 bg-blue-500 text-white rounded-md"
                     onClick={() => setSelectedUser(user)}
