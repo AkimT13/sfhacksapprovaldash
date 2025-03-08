@@ -9,6 +9,7 @@ export default function UserModal({ user, onClose }) {
 
   // Extract the school code from user data
   const schoolCode = user.data.fields.find((f) => f.key === "question_8qqGAk")?.value;
+  const schoolEmail = user.data.fields.find((f)=>f.key)
 
   const genderMap = {
     "0b5515fe-f761-42bd-94fd-d65a601140c9": "Male",
@@ -80,7 +81,7 @@ export default function UserModal({ user, onClose }) {
   }
 
   // Extract Race
-  const raceKey = user.data.fields.find((f) => f.key === "question_race")?.value?.[0] || null;
+  const raceKey = user.data.fields.find((f) => f.key === "question_EKKLvA")?.value?.[0] || null;
   let race = "Not selected";
   if (raceKey && raceMap[raceKey]) {
     race = raceMap[raceKey];
@@ -110,6 +111,11 @@ export default function UserModal({ user, onClose }) {
         <strong>Email:</strong>{" "}
         {user.data.fields.find((f) => f.key === "question_gaaLYM")?.value || "N/A"}
       </p>
+      <p>
+        <strong>School Email:</strong>{" "}
+        {user.data.fields.find((f) => f.key === "question_yMMxj6")?.value || "N/A"}
+      </p>
+      
       <p>
         <strong>School:</strong> {schoolName}
       </p>
