@@ -38,6 +38,11 @@ export default function ApprovedTabContent() {
     southAsian: 0,
     southeastAsian: 0,
   });
+
+  const [shirts, setShirts] = useState({
+    sm: 0,
+    
+  })
   
 
   

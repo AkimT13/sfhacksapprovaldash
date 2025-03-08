@@ -101,12 +101,12 @@ export default function IndividualAppsTabContent() {
 
           return (
             <div key={user.id} className={`${cardColor} shadow-lg p-4 rounded-lg`}>
-              <p>
+              <p className="text-xl">
                 <strong>Name:</strong>{" "}
                 {user.data.fields.find((f) => f.key === "question_1XXMD4")?.value}{" "}
                 {user.data.fields.find((f) => f.key === "question_MXXLvE")?.value}
               </p>
-              <p>
+              <p className="text-xl">
                 <strong>Email (school):</strong>{" "}
                 {user.data.fields.find((f) => f.key === "question_yMMxj6")?.value}
               </p>

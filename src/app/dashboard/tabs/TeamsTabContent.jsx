@@ -137,14 +137,14 @@ export default function TeamsTabContent() {
                     approvedUsers[user.id] ? "bg-green-200" : "bg-white"
                   }`}
                 >
-                  <p>
+                  <p className="text-2xl">
                     <strong>Name:</strong>{" "}
                     {user.data?.fields?.find((f) => f.key === "question_1XXMD4")
                       ?.value || "Unknown"}{" "}
                     {user.data?.fields?.find((f) => f.key === "question_MXXLvE")
                       ?.value || ""}
                   </p>
-                  <p>
+                  <p className="text-2xl">
                     <strong>Email (school):</strong>{" "}
                     {user.data?.fields?.find((f) => f.key === "question_yMMxj6")
                       ?.value || "Unknown"}{" "}
