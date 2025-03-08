@@ -9,6 +9,7 @@ export default function TeamsTabContent() {
   const [approvedUsers, setApprovedUsers] = useState({});
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [totalTeamMembers, setTotalTeamMembers] = useState(0); // Added counter for team members
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -38,17 +39,21 @@ export default function TeamsTabContent() {
         console.log("Approved Users:", approvedData);
 
         const teamMembersMap = {};
+        let count = 0; // Initialize team member counter
+
         Object.entries(teamsData).forEach(([teamID, memberIDs]) => {
           teamMembersMap[teamID] = memberIDs
             .map((id) =>
               responsesData[id] ? { id, ...responsesData[id] } : null
             )
             .filter(Boolean);
+          count += teamMembersMap[teamID].length; // Count total members
         });
 
         setTeams(teamsData);
         setTeamMembers(teamMembersMap);
         setApprovedUsers(approvedData);
+        setTotalTeamMembers(count); // Set the total team members count
       } catch (error) {
         console.error("Error fetching teams and members:", error);
       } finally {
@@ -102,6 +107,10 @@ export default function TeamsTabContent() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="text-3xl font-bold text-center mb-6">Teams</h1>
+      {/* Display the total count of team members */}
+      <p className="text-lg font-semibold text-center mb-4">
+        Total Team Members: {totalTeamMembers}
+      </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Object.entries(teamMembers).length === 0 ? (
           <p className="text-center text-gray-500">No teams found.</p>

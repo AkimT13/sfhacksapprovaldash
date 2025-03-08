@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../../../../config";
-import { ref, get } from "firebase/database";
+import { ref, get, update } from "firebase/database";
 import UserModal from "../../components/UserModal";
 
 export default function IndividualAppsTabContent() {
   const [responses, setResponses] = useState([]);
+  const [approvedUsers, setApprovedUsers] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -12,16 +13,24 @@ export default function IndividualAppsTabContent() {
     const fetchResponses = async () => {
       try {
         const responsesRef = ref(db, "responses");
-        const responsesSnapshot = await get(responsesRef);
+        const approvedRef = ref(db, "approved");
+
+        const [responsesSnapshot, approvedSnapshot] = await Promise.all([
+          get(responsesRef),
+          get(approvedRef),
+        ]);
+
         const responsesData = responsesSnapshot.exists()
           ? responsesSnapshot.val()
           : {};
+        const approvedData = approvedSnapshot.exists() ? approvedSnapshot.val() : {};
 
         const allApplicants = Object.entries(responsesData)
           .map(([id, response]) => ({ id, ...response }))
           .filter((user) => !user.isTeam); // Skip users who signed up as a team
 
         setResponses(allApplicants);
+        setApprovedUsers(approvedData);
       } catch (error) {
         console.error("Error fetching responses:", error);
       } finally {
@@ -31,6 +40,37 @@ export default function IndividualAppsTabContent() {
 
     fetchResponses();
   }, []);
+
+  const handleApprove = async (userID, user) => {
+    try {
+      const updates = {
+        [`/approved/${userID}`]: user,
+      };
+
+      setApprovedUsers((prev) => ({ ...prev, [userID]: user }));
+      await update(ref(db), updates);
+    } catch (error) {
+      console.error("Error approving user:", error);
+    }
+  };
+
+  const handleUnapprove = async (userID) => {
+    try {
+      const updates = {
+        [`/approved/${userID}`]: null,
+      };
+
+      setApprovedUsers((prev) => {
+        const newApprovedUsers = { ...prev };
+        delete newApprovedUsers[userID];
+        return newApprovedUsers;
+      });
+
+      await update(ref(db), updates);
+    } catch (error) {
+      console.error("Error unapproving user:", error);
+    }
+  };
 
   if (loading)
     return <p className="text-center text-gray-500">Loading responses...</p>;
@@ -46,7 +86,7 @@ export default function IndividualAppsTabContent() {
         <p className="bg-red-200 p-1 inline-block rounded ml-2">Volunteer</p>
       </div>
       <p className="text-lg font-semibold mb-2">
-        Total Applicants (individual): {responses.length}
+        Applicants (individual not team): {responses.length}
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {responses.map((user) => {
@@ -75,6 +115,18 @@ export default function IndividualAppsTabContent() {
                 onClick={() => setSelectedUser(user)}
               >
                 View Details
+              </button>
+              <button
+                className={`mt-2 px-3 py-1 rounded-md ml-2 ${
+                  approvedUsers[user.id] ? "bg-red-500" : "bg-green-500"
+                } text-white`}
+                onClick={() =>
+                  approvedUsers[user.id]
+                    ? handleUnapprove(user.id)
+                    : handleApprove(user.id, user)
+                }
+              >
+                {approvedUsers[user.id] ? "Unapprove" : "Approve"}
               </button>
             </div>
           );
