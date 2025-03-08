@@ -9,6 +9,24 @@ export default function IndividualAppsTabContent() {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  const majorsMap = {
+    "717b9b25-16cd-4c2e-94bc-aecdd4aa82bf": "Computer Science, Computer Engineering, or Software Engineering",
+    "9aebb2e6-7adf-4a74-833b-a4cd697b3a72": "Another Engineering discipline (such as Civil, Electrical, Mechanical, etc.)",
+    "67fad239-220c-43c9-89c2-8423c47b31f4": "Information Systems, Information Technology, or System Administration",
+    "6b4ec753-06c0-4585-aed1-a1a1cfd34baa": "Natural Sciences (such as Biology, Chemistry, Physics, etc.)",
+    "db80f000-f2ad-4b9f-8167-f2f9e105efb3": "Mathematics or Statistics",
+    "634a234d-577e-479d-95e0-ed48f86eda55": "Web Development or Web Design",
+    "3be72344-4aca-4e9b-854d-5c6a0b5bc766": "Business discipline (such as accounting, finance, marketing, etc.)",
+    "5dd53606-ee8b-4e97-9220-c0a7289c444b": "Humanities discipline (such as literature, history, philosophy, etc.)",
+    "5e4de481-360c-435a-b68f-4f700b5c0e51": "Social Science (such as anthropology, psychology, political science, etc.)",
+    "656f6304-1429-4d18-8c72-556a45e3d42b": "Fine Arts or Performing Arts (such as graphic design, music, studio art, etc.)",
+    "1b8108d5-4f3c-433d-8159-110e4917fc7a": "Health Science (such as nursing, pharmacy, radiology, etc.)",
+    "97e227a6-6dae-459e-9505-f4f3bf0f791f": "Other (please specify)",
+    "eb0173d2-e774-4ec5-a04a-cb0231eb2643": "Undecided / Undeclared Major",
+    "45cdba80-1f45-4833-8d98-ece868c20720": "My school does not offer majors / primary areas of study",
+    "ea2bfbde-08b7-433d-a85c-b5a56d8923e0": "Prefer not to answer",
+  };
+
   useEffect(() => {
     const fetchResponses = async () => {
       try {
@@ -110,6 +128,11 @@ export default function IndividualAppsTabContent() {
                 <strong>Email (school):</strong>{" "}
                 {user.data.fields.find((f) => f.key === "question_yMMxj6")?.value}
               </p>
+              <p className="text-xl">
+                <strong>Major :</strong>{" "}
+                {majorsMap[user.data.fields.find((f) => f.key === "question_jZZL5Y")?.value]}
+              </p>
+
               <button
                 className="mt-2 px-3 py-1 bg-blue-500 text-white rounded-md"
                 onClick={() => setSelectedUser(user)}

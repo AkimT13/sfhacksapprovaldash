@@ -33,6 +33,7 @@ export default function ScanQRCodeTabContent() {
       }
     };
   }, []);
+  
 
   useEffect(() => {
     if (!qrScannerRef.current) return;
