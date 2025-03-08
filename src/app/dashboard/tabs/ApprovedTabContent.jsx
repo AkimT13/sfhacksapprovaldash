@@ -41,8 +41,10 @@ export default function ApprovedTabContent() {
 
   const [shirts, setShirts] = useState({
     sm: 0,
-    
+
   })
+
+  
   
 
   
@@ -102,12 +104,19 @@ export default function ApprovedTabContent() {
           const schoolKey = user.data?.fields[10]?.value?.[0];
           const genderKey = user.data?.fields[20]?.value?.[0] || null;
           const raceKey = user.data?.fields.find((f) => f.key === "question_EKKLvA")?.value?.[0] || null;
-  
+          
           // Count SFSU participants
           if (schoolKey === "100de79c-70c1-4630-9797-044e19191ba9") {
             sfsuCountTemp++;
           }
-  
+          
+          let roleColor = "bg-white"
+
+    if (roleKey === "8f029033-3da1-486d-a30b-21b89f521ae1") roleColor = "bg-blue-200"; // Hacker
+  else if (roleKey === "6d765c6b-14f3-480e-9620-8daa7b4472e8") roleColor = "bg-green-200"; // Mentor
+  else if (roleKey === "8af8acda-7038-4781-86e8-1303ad345f71") roleColor = "bg-yellow-200"; // Judge
+  else if (roleKey === "f40e3753-e01e-4f46-b1f8-ebc2b8b28e01") roleColor = "bg-gray-200"; // Spectator
+  else if (roleKey === "76d197ad-8799-40ee-a737-ea8e2c607be5") roleColor = "bg-red-200"; // Vol
           // Count roles
           if (roleKey === "8f029033-3da1-486d-a30b-21b89f521ae1") hackers++;
           else if (roleKey === "6d765c6b-14f3-480e-9620-8daa7b4472e8") mentors++;
@@ -230,7 +239,15 @@ export default function ApprovedTabContent() {
               `${user.data?.fields?.find((f) => f.key === "question_MXXLvE")?.value || ""}`;
             const email = user.data?.fields?.find((f) => f.key === "question_gaaLYM")?.value || "N/A";
             const emailStatus = user.emailSucceeded;
+            const roleee = user.data?.fields[3]?.value?.[0];
+            let roleColor = "bg-white"
+            if (roleee === "8f029033-3da1-486d-a30b-21b89f521ae1") roleColor = "bg-blue-500"; // Hacker
+            else if (roleee === "6d765c6b-14f3-480e-9620-8daa7b4472e8") roleColor = "bg-green-500"; // Mentor
+            else if (roleee === "8af8acda-7038-4781-86e8-1303ad345f71") roleColor = "bg-yellow-500"; // Judge
+            else if (roleee === "f40e3753-e01e-4f46-b1f8-ebc2b8b28e01") roleColor = "bg-gray-500"; // Spectator
+            else if (roleee === "76d197ad-8799-40ee-a737-ea8e2c607be5") roleColor = "bg-red-500"; // Vol
             let cardColor = "bg-white";
+
             if (emailStatus === false) cardColor = "bg-red-200";
             else if (emailStatus === true) cardColor = "bg-green-200";
 
@@ -243,12 +260,15 @@ export default function ApprovedTabContent() {
                   onChange={() => handleSelectUser(id, user)}
                   disabled={!selectedUsers[id] && Object.keys(selectedUsers).length >= 10}
                 />
+                
                 <div>
                   <p><strong>Name:</strong> {fullName}</p>
                   <p><strong>Email:</strong> {email}</p>
-                  <button className="mt-2 px-3 py-1 bg-blue-500 text-white rounded-md" onClick={() => setSelectedUser(user)}>
+                  
+                  <button className={`mt-2 px-3 py-1 ${roleColor} text-white rounded-md`} onClick={() => setSelectedUser(user)}>
                     View Details
                   </button>
+                  
                 </div>
               </div>
             );
