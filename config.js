@@ -5,13 +5,13 @@ import { getDatabase } from "firebase/database"; // Added Firebase Realtime Data
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDdsm2Pdu7ao_y-iaY6Caws8FeZLfXfCyM",
-  authDomain: "sfhacks2025dev.firebaseapp.com",
-  databaseURL: "https://sfhacks2025dev-default-rtdb.firebaseio.com", // Ensure correct database URL
-  projectId: "sfhacks2025dev",
-  storageBucket: "sfhacks2025dev.firebasestorage.app",
-  messagingSenderId: "382680714846",
-  appId: "1:382680714846:web:9a143298eaac7575d6eecf"
+  apiKey: "AIzaSyBQUfVZ4at7SL4g7w6S5p7wHh9kFzPToKQ",
+  authDomain: "sfhacks2025.firebaseapp.com",
+  databaseURL: "https://sfhacks2025-default-rtdb.firebaseio.com",
+  projectId: "sfhacks2025",
+  storageBucket: "sfhacks2025.firebasestorage.app",
+  messagingSenderId: "201532170161",
+  appId: "1:201532170161:web:570328cf135db796036790"
 };
 
 // Initialize Firebase
