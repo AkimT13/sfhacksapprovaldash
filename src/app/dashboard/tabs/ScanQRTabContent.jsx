@@ -33,7 +33,6 @@ export default function ScanQRCodeTabContent() {
       }
     };
   }, []);
-  
 
   useEffect(() => {
     if (!qrScannerRef.current) return;
@@ -126,7 +125,7 @@ export default function ScanQRCodeTabContent() {
           {errorType == -1 ? (
             <div className="flex justify-center">Application not found</div>
           ) : (
-            <div>
+            <div className="min-w-72">
               <h2 className="text-2xl font-bold mb-4">
                 {scannedApp.data.fields.find((f) => f.key === "question_1XXMD4")
                   ?.value || "Unknown"}{" "}
