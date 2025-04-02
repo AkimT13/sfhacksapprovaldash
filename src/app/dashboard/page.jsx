@@ -10,6 +10,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import ApprovedTabContent from "./tabs/ApprovedTabContent";
 import TabNavigation from "../components/TabNavigation";
 import TabView from "../components/TabView";
+import WaitlistTabContent from "./tabs/WaitListTabContent";
 
 const ScanQRTabContent = dynamic(() => import("./tabs/ScanQRTabContent"), {
   ssr: false,
@@ -57,6 +58,7 @@ function DashboardContent() {
       component: <ApprovedTabContent />,
     },
     { key: "scan_qr", label: "Scan QR Code", component: <ScanQRTabContent /> },
+    {key: "waitlist_apps", label: "Waitlist", component: <WaitlistTabContent/>}
   ];
 
   const handleTabClick = (tabKey) => {
