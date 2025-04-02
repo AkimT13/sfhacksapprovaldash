@@ -15,8 +15,8 @@
     "firebase-admin": "^13.0.0",
     "html5-qrcode": "^2.3.8",
     "next": "^15.2.4",
-    "react": "19.0.0-rc-66855b96-20241106",
-    "react-dom": "19.0.0-rc-66855b96-20241106"
+    "react": "^19.0.0-rc-de68d2f4-20241204",
+    "react-dom": "^19.0.0-rc-de68d2f4-20241204"
   },
   "devDependencies": {
     "eslint": "^8",
