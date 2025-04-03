@@ -170,16 +170,17 @@ export default function ApprovedTabContent() {
     }));
   
     try {
-      const response = await axios.post(`https://tallyserver-mpmt.onrender.com/generate-qrcodes`, { users: requestData });
+      const response = await axios.post(`https://tallyserver-mpmt.onrender.com/sendQRcodeLink`, { users: requestData });
+
       console.log("API Base URL:", process.env.API_URL);
       const updatedUsers = { ...approvedUsers };
   
       const updates = {}; // Object to store Firebase updates
-  
+      
       response.data.forEach(({ key, emailSucceeded }) => {
         if (updatedUsers[key]) {
-          updatedUsers[key] = { ...updatedUsers[key], emailSucceeded };
-          updates[`approved/${key}/emailSucceeded`] = emailSucceeded; // Prepare Firebase update
+          updatedUsers[key] = { ...updatedUsers[key], checkInEmailSucceeded: emailSucceeded };
+          updates[`approved/${key}/checkInEmailSucceeded`] = emailSucceeded;
         }
       });
   
@@ -248,8 +249,9 @@ export default function ApprovedTabContent() {
             else if (roleee === "76d197ad-8799-40ee-a737-ea8e2c607be5") roleColor = "bg-red-500"; // Vol
             let cardColor = "bg-white";
 
-            if (emailStatus === false) cardColor = "bg-red-200";
-            else if (emailStatus === true) cardColor = "bg-green-200";
+            const checkInStatus = user.checkInEmailSucceeded;
+            if (checkInStatus === false) cardColor = "bg-red-200";
+            else if (checkInStatus === true) cardColor = "bg-green-200";
 
             return (
               <div key={id} className={`${cardColor} shadow-lg p-4 rounded-lg flex items-center gap-4`}>
