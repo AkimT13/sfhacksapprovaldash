@@ -1,5 +1,5 @@
 import { auth } from "../../../config";
-import { ref, get, update, userRef } from "firebase/database";
+import { ref, get, update, userRef, runTransaction } from "firebase/database";
 import { db } from "../../../config";
 
 const fetchResponses = async () => {
@@ -51,16 +51,23 @@ export const checkInApprovedApplication = async (id) => {
       return appData;
     }
 
-    const updates = {};
-
     if (appData.checkedIn) {
       console.error("User has already been checked in.");
       return 1;
     }
 
+    // Mark user as checked in
+    const updates = {};
     updates[`/approved/${id}/checkedIn`] = true;
     await update(ref(db), updates);
-    return 0;
+
+    
+    const countRef = ref(db, "checkInCount");
+    await runTransaction(countRef, (currentValue) => {
+      return (currentValue || 0) + 1;
+    });
+
+    return 0; 
   } catch (error) {
     console.error("Error checking in user:", error);
     return 2;

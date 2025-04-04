@@ -3,9 +3,10 @@ import {
   checkInApprovedApplication,
   fetchApprovedApplication,
 } from "@/app/utils/checkIn";
-import { set } from "firebase/database";
+import { set,ref, onValue } from "firebase/database";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { use, useEffect, useState, useRef } from "react";
+import { db } from "../../../../config";
 
 export default function ScanQRCodeTabContent() {
   const [scannedCodes, setScannedCodes] = useState([]);
@@ -15,6 +16,7 @@ export default function ScanQRCodeTabContent() {
   const [isCheckInButtonDisabled, setCheckInButtonDisabled] = useState(false);
   const [isLoadingAppData, setLoadingAppData] = useState(false);
   const [errorType, setErrorType] = useState(null);
+  const [checkInCount, setCheckInCount] = useState(0);
 
   const qrScannerRef = useRef(null);
 
@@ -45,6 +47,16 @@ export default function ScanQRCodeTabContent() {
       qrScannerRef.current.isPaused = false;
     }
   }, [isModalVisible]);
+
+  useEffect(() => {
+    const countRef = ref(db, "checkInCount");
+    const unsubscribe = onValue(countRef, (snapshot) => {
+      const value = snapshot.val();
+      setCheckInCount(value || 0); 
+    });
+  
+    return () => unsubscribe();
+  }, []); 
 
   useEffect(() => {
     qrScannerRef.current.render(onScanSuccess, onScanFailure);
@@ -119,6 +131,9 @@ export default function ScanQRCodeTabContent() {
   return (
     <div className="flex flex-col items-center h-full-s">
       <div id="reader" className="w-96"></div>
+      <p className="text-lg font-semibold mt-4">
+  {checkInCount} people checked in
+      </p>
 
       {isModalVisible && (
         <Modal onCloseCallBack={() => setModalVisible(false)}>
