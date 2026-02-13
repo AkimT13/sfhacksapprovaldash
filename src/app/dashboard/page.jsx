@@ -11,6 +11,7 @@ import ApprovedTabContent from "./tabs/ApprovedTabContent";
 import TabNavigation from "../components/TabNavigation";
 import TabView from "../components/TabView";
 import WaitlistTabContent from "./tabs/WaitListTabContent";
+import CheckedInTabContent from "./tabs/CheckedInTabContent";
 
 const ScanQRTabContent = dynamic(() => import("./tabs/ScanQRTabContent"), {
   ssr: false,
@@ -58,7 +59,8 @@ function DashboardContent() {
       component: <ApprovedTabContent />,
     },
     { key: "scan_qr", label: "Scan QR Code", component: <ScanQRTabContent /> },
-    {key: "waitlist_apps", label: "Waitlist", component: <WaitlistTabContent/>}
+    {key: "waitlist_apps", label: "Waitlist", component: <WaitlistTabContent/>},
+    {key: "checked_in", label: "Checked In", component: <CheckedInTabContent/>}
   ];
 
   const handleTabClick = (tabKey) => {

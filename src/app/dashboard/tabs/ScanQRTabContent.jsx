@@ -1,30 +1,29 @@
 import Modal from "@/app/components/Modal";
-import {
-  checkInApprovedApplication,
-  fetchApprovedApplication,
-} from "@/app/utils/checkIn";
-import { set,ref, onValue } from "firebase/database";
+import { checkInAcceptedUser, fetchAcceptedUser } from "@/app/utils/checkIn";
+import { ref, onValue } from "firebase/database";
 import { Html5QrcodeScanner } from "html5-qrcode";
-import { use, useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { db } from "../../../../config";
 
 export default function ScanQRCodeTabContent() {
   const [scannedCodes, setScannedCodes] = useState([]);
   const [isModalVisible, setModalVisible] = useState(false);
   const [scannedApp, setScannedApp] = useState(null);
+  const [scannedUserId, setScannedUserId] = useState(null);
+
   const [buttonMessage, setButtonMessage] = useState("Check-In");
   const [isCheckInButtonDisabled, setCheckInButtonDisabled] = useState(false);
-  const [isLoadingAppData, setLoadingAppData] = useState(false);
   const [errorType, setErrorType] = useState(null);
   const [checkInCount, setCheckInCount] = useState(0);
 
   const qrScannerRef = useRef(null);
 
+  // Initialize scanner
   useEffect(() => {
     if (!qrScannerRef.current) {
       qrScannerRef.current = new Html5QrcodeScanner("reader", {
         fps: 5,
-        qrbox: { width: 250, height: 250 },
+        qrbox: { width: 250, height: 250 }
       });
     }
 
@@ -36,6 +35,7 @@ export default function ScanQRCodeTabContent() {
     };
   }, []);
 
+  // Pause scanner while modal is open
   useEffect(() => {
     if (!qrScannerRef.current) return;
 
@@ -48,34 +48,56 @@ export default function ScanQRCodeTabContent() {
     }
   }, [isModalVisible]);
 
+  // Listen for check-in count
   useEffect(() => {
     const countRef = ref(db, "checkInCount");
+
     const unsubscribe = onValue(countRef, (snapshot) => {
       const value = snapshot.val();
-      setCheckInCount(value || 0); 
+      setCheckInCount(value || 0);
     });
-  
-    return () => unsubscribe();
-  }, []); 
 
+    return () => unsubscribe();
+  }, []);
+
+  // QR scan handler
   useEffect(() => {
+    if (!qrScannerRef.current) return;
+
     qrScannerRef.current.render(onScanSuccess, onScanFailure);
 
     async function onScanSuccess(decodedText, decodedResult) {
-      console.log(`Code matched = ${decodedText}`, decodedResult);
-      setScannedCodes(scannedCodes.concat([{ decodedText, decodedResult }]));
+      // 🔥 sanitize QR value
+      const cleanUserId = String(decodedText).trim();
 
-      const response = await fetchApprovedApplication(decodedText);
+      console.log(`Scan success`, {
+        raw: decodedText,
+        cleaned: cleanUserId,
+        rawLength: String(decodedText).length,
+        trimmedLength: cleanUserId.length,
+        decodedResult
+      });
+
+      setScannedCodes(prev =>
+        prev.concat([{ decodedText: cleanUserId, decodedResult }])
+      );
+
+      setScannedUserId(cleanUserId);
+
+      const response = await fetchAcceptedUser(cleanUserId);
+
       if (response === 2) {
-        setButtonMessage("There was an error getting application details.");
+        setButtonMessage("Error fetching applicant.");
         setCheckInButtonDisabled(true);
-        setErrorType(response);
+        setErrorType(2);
         setModalVisible(true);
         return;
-      } else if (response === -1) {
-        setButtonMessage("Application not found.");
+      }
+
+      if (response === -1) {
+        setButtonMessage("Applicant not found.");
         setCheckInButtonDisabled(true);
-        setErrorType(response);
+        setErrorType(-1);
         setModalVisible(true);
         return;
       }
@@ -83,7 +105,7 @@ export default function ScanQRCodeTabContent() {
       setScannedApp(response);
       setErrorType(null);
 
-      if (response.checkedIn) {
+      if (response.checkedIn === true) {
         setButtonMessage("Already Checked-In");
         setCheckInButtonDisabled(true);
         setModalVisible(true);
@@ -92,83 +114,83 @@ export default function ScanQRCodeTabContent() {
 
       setButtonMessage("Check-In");
       setCheckInButtonDisabled(false);
-
       setModalVisible(true);
     }
 
     function onScanFailure(error) {
-      console.warn(`Code scan error = ${error}`);
+      console.warn("Scan error:", error);
     }
   }, []);
 
+  // Check-in action
   const checkInApp = async () => {
+    if (!scannedUserId) return;
+
+    const cleanUserId = String(scannedUserId).trim();
+
     setCheckInButtonDisabled(true);
     setButtonMessage("Checking in...");
 
-    const response = await checkInApprovedApplication(scannedApp.id);
+    const response = await checkInAcceptedUser(cleanUserId);
+
     if (response === 2) {
       setButtonMessage("Error checking in.");
-      setCheckInButtonDisabled(true);
       return;
     }
 
     if (response === 1) {
       setButtonMessage("Already Checked-In");
-      setCheckInButtonDisabled(true);
       return;
     }
 
     if (response === -1) {
-      setButtonMessage("No application found.");
-      setCheckInButtonDisabled(true);
+      setButtonMessage("Applicant not found.");
       return;
     }
 
     setButtonMessage("Checked-In");
-    setCheckInButtonDisabled(true);
   };
+
+  const firstName = scannedApp?.first_name || "Unknown";
+  const lastName = scannedApp?.last_name || "";
+  const email = scannedApp?.email || "N/A";
 
   return (
     <div className="flex flex-col items-center h-full-s">
       <div id="reader" className="w-96"></div>
+
       <p className="text-lg font-semibold mt-4">
-  {checkInCount} people checked in
+        {checkInCount} people checked in
       </p>
 
       {isModalVisible && (
         <Modal onCloseCallBack={() => setModalVisible(false)}>
-          {errorType == -1 ? (
-            <div className="flex justify-center">Application not found</div>
+          {errorType === -1 ? (
+            <div className="flex justify-center">Applicant not found</div>
+          ) : errorType === 2 ? (
+            <div className="flex justify-center">Error fetching applicant</div>
           ) : (
             <div className="min-w-72">
-              <h2 className="text-2xl font-bold mb-4">
-                {scannedApp.data.fields.find((f) => f.key === "question_1XXMD4")
-                  ?.value || "Unknown"}{" "}
-                {scannedApp.data.fields.find((f) => f.key === "question_MXXLvE")
-                  ?.value || ""}
+              <h2 className="text-2xl font-bold mb-2">
+                {firstName} {lastName}
               </h2>
-              <p>
-                <strong>Role:</strong>{" "}
-                {scannedApp.data.fields
-                  .find((f) => f.key === "question_prrGRy")
-                  ?.options?.find(
-                    (option) =>
-                      option.id ===
-                      scannedApp.data.fields.find(
-                        (f) => f.key === "question_prrGRy"
-                      )?.value?.[0]
-                  )?.text || "N/A"}
+
+              <p className="mb-4">
+                <strong>Email:</strong> {email}
               </p>
+
+              <p className="mb-4 break-all text-xs text-gray-500">
+                <strong>User ID:</strong> {scannedUserId || "N/A"}
+              </p>
+
               <div className="w-full mt-4 space-y-2">
                 <button
                   disabled={isCheckInButtonDisabled}
-                  onClick={async () => {
-                    checkInApp();
-                  }}
+                  onClick={() => void checkInApp()}
                   className={
                     !isCheckInButtonDisabled
                       ? "flex w-full justify-center bg-green-500 text-white py-4 rounded-md hover:bg-green-600 mr-2"
-                      : "flex w-full justify-center bg-gray-100 text-gray-400 py-4 rounded-md  mr-2"
+                      : "flex w-full justify-center bg-gray-100 text-gray-400 py-4 rounded-md mr-2"
                   }
                 >
                   {buttonMessage}

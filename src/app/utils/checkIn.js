@@ -1,75 +1,59 @@
-import { auth } from "../../../config";
-import { ref, get, update, userRef, runTransaction } from "firebase/database";
-import { db } from "../../../config";
+// checkIn.js
 
-const fetchResponses = async () => {
+import { ref, get, update, runTransaction } from 'firebase/database';
+import { db } from '../../../config';
+
+/**
+ * Fetch accepted user info from accepted2026/{userId}
+ * @param {string} userId
+ * @returns {Promise<object|number>} object if found, -1 if not found, 2 if error
+ */
+export const fetchAcceptedUser = async (userId) => {
   try {
-    const responsesRef = ref(db, "responses");
-    const responsesSnapshot = await get(responsesRef);
-    const responsesData = responsesSnapshot.exists()
-      ? responsesSnapshot.val()
-      : {};
-
-    const allApplicants = Object.entries(responsesData).map(
-      ([id, response]) => ({ id, ...response })
-    );
-    setResponses(allApplicants);
+    const userSnap = await get(ref(db, `accepted2026/${userId}`));
+    if (!userSnap.exists()) return -1;
+    return userSnap.val();
   } catch (error) {
-    console.error("Error fetching responses:", error);
-  } finally {
-    setLoading(false);
-  }
-};
-
-export const fetchApprovedApplication = async (id) => {
-  try {
-    const appRef = ref(db, `approved/${id}`);
-    const appSnapshot = await get(appRef);
-    if (appSnapshot.exists()) {
-      const appData = appSnapshot.val();
-      return appData;
-    }
-
-    // If the data doesn't exist
-    console.error("No data found for this application ID.");
-    return -1;
-  } catch (error) {
-    console.error("Error fetching user information:", error);
+    console.error('Error fetching accepted user:', error);
     return 2;
   }
 };
 
 /**
+ * Check-in an accepted user by setting accepted2026/{userId}/checkedIn = true
+ * and incrementing checkInCount.
  *
- * @param {string} id
- * @returns {Promise<number>} 0 if successful, 1 if user has already been checked in, 2 if error.
+ * Return codes:
+ *  0 = success
+ *  1 = already checked in
+ * -1 = not found in accepted2026
+ *  2 = error
+ *
+ * @param {string} userId
+ * @returns {Promise<number>}
  */
-export const checkInApprovedApplication = async (id) => {
+export const checkInAcceptedUser = async (userId) => {
   try {
-    const appData = await fetchApprovedApplication(id);
-    if (appData === -1 || appData === 2) {
-      return appData;
-    }
+    const user = await fetchAcceptedUser(userId);
+    if (user === -1 || user === 2) return user;
 
-    if (appData.checkedIn) {
-      console.error("User has already been checked in.");
+    if (user.checkedIn === true) {
+      console.error('User has already been checked in.');
       return 1;
     }
 
-    // Mark user as checked in
     const updates = {};
-    updates[`/approved/${id}/checkedIn`] = true;
+    updates[`/accepted2026/${userId}/checkedIn`] = true;
+    updates[`/accepted2026/${userId}/checkedInAt`] = Date.now();
+
     await update(ref(db), updates);
 
-    
-    const countRef = ref(db, "checkInCount");
-    await runTransaction(countRef, (currentValue) => {
-      return (currentValue || 0) + 1;
-    });
+    const countRef = ref(db, 'checkInCount');
+    await runTransaction(countRef, (currentValue) => (currentValue || 0) + 1);
 
-    return 0; 
+    return 0;
   } catch (error) {
-    console.error("Error checking in user:", error);
+    console.error('Error checking in user:', error);
     return 2;
   }
 };
