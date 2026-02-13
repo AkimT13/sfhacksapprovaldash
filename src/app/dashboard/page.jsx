@@ -43,24 +43,9 @@ function DashboardContent() {
   }, [searchParams]);
 
   const tabs = [
-    {
-      key: "individual_apps",
-      label: "Individual Applicants",
-      component: <IndividualAppsTabContent />,
-    },
-    {
-      key: "team_apps",
-      label: "All Team Applications",
-      component: <TeamTabContent />,
-    },
-    {
-      key: "approved_apps",
-      label: "Approved Applications",
-      component: <ApprovedTabContent />,
-    },
+    
     { key: "scan_qr", label: "Scan QR Code", component: <ScanQRTabContent /> },
-    {key: "waitlist_apps", label: "Waitlist", component: <WaitlistTabContent/>},
-    {key: "checked_in", label: "Checked In", component: <CheckedInTabContent/>}
+    
   ];
 
   const handleTabClick = (tabKey) => {
